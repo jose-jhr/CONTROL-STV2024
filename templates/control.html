@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/sweet.js"></script>
+
+    <title>Control stv</title>
+</head>
+<body>
+
+<div class="container">
+    <br>
+    <h2 class="text-center">CONTROL STV</h2>
+
+    <!--<input type="submit" class="btn btn-success" value="+ CIUDADES" id="btnMoreCiu" onclick="addCiudad()">-->
+
+
+
+    <h4>UBICACIONES</h4>
+    <div class="mt-3" id="cityButtons">
+        {% for data in dataToken %}
+            {% set elements = data.to_dict() %}
+            <button class="btn btn-primary m-1" onclick="filterByCity('{{ elements.location }}')">{{ elements.location }}</button>
+        {% endfor %}
+        <button class="btn btn-success m-1" onclick="resetFilter()">Mostrar Todas</button>
+    </div>
+
+    <table class="table mt-3">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Ubicación</th>
+            <th scope="col">Alias</th>
+            <th scope="col">Token</th>
+            <th scope="col">Url actual</th>
+            <th scope="col">Cambiar</th>
+        </tr>
+        </thead>
+        <tbody id="cityTableBody">
+
+        {% block content %}
+        {% for data in dataToken %}
+            {% set elements = data.to_dict() %}
+            <tr>
+                <form name="login" action="/update" method="post">
+                    <th scope="row">{{ loop.index }}</th>
+                    <td><input type="text" id="location" name="location" class="form-control" value="{{ elements.location }}" aria-label="Ubicación"></td>
+                    <td><input type="text" id="nombre" name="nombre" class="form-control" value="{{ elements.nombre }}" aria-label="Nombre"></td>
+                    <td><input type="text" id="token" name="token" class="form-control" value="{{ elements.token }}" aria-label="Token" readonly></td>
+                    <td><input type="text" id="url" name="url" class="form-control" value="{{ elements.url_current }}" aria-label="Url Actual"></td>
+                    <td>
+                        <input class="btn btn-primary" type="submit" name="action" value="Actualizar" />
+                        <input class="btn btn-danger" type="submit" name="action" value="Eliminar" />
+                    </td>
+                </form>
+            </tr>
+        {% endfor %}
+        {% endblock %}
+
+        <tr class="table-danger">
+            <form name="login" action="/update" method="post">
+                <th scope="row">1</th>
+                <td><input type="text" id="location" name="location" class="form-control" placeholder="Ubicación"></td>
+                <td><input type="text" id="nombre" name="nombre" class="form-control" placeholder="Alias"></td>
+                <td><input type="text" id="token" name="token" class="form-control" placeholder="Token"></td>
+                <td><input type="text" id="url" name="url" class="form-control" placeholder="Url Actual"></td>
+                <td><input class="btn btn-warning" type="submit" name="action" value="Adicionar" /></td>
+            </form>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+
+  /**
+  Busca los botones que tengan repetidos los textos y los elimina
+  **/
+  function removeDuplicateButtons() {
+    const buttons = document.querySelectorAll('#cityButtons button');
+    const seen = new Set();
+
+    buttons.forEach(button => {
+        const text = button.innerText;
+        if (seen.has(text)) {
+            button.remove();
+        } else {
+            seen.add(text);
+        }
+    });
+}
+
+// Llama a la función para eliminar duplicados
+removeDuplicateButtons();
+
+   // SweetAlert message handling
+   var mensaje = "{{ nameRequest }}";
+   console.log(mensaje);
+   if (mensaje == "Actualizacion Correcta" || mensaje == "Adicion Correcta" || mensaje == "Eliminado correctamente" || mensaje == "Actualizado") {
+       Swal.fire({
+           position: "center",
+           icon: "success",
+           text: mensaje,
+           showConfirmButton: true,
+           timer: 5000,
+       });
+   } else if (mensaje != "login") {
+       Swal.fire({
+           position: "center",
+           icon: "warning",
+           text: mensaje,
+           showConfirmButton: true,
+           timer: 5000,
+       });
+   }
+
+  
+    function filterByCity(city) {
+        const rows = document.querySelectorAll('#cityTableBody tr');
+        rows.forEach(row => {
+            const location = row.querySelector('input[name="location"]').value;
+            if (location === city) {
+                row.style.display = ''; // Mostrar fila
+            } else {
+                row.style.display = 'none'; // Ocultar fila
+            }
+        });
+    }
+
+    function resetFilter() {
+        const rows = document.querySelectorAll('#cityTableBody tr');
+        rows.forEach(row => {
+            row.style.display = ''; // Mostrar todas las filas
+        });
+    }
+
+    $(document).keypress(function (event) {
+        if (event.which == '13') {
+            event.preventDefault();
+        }
+    });
+
+
+   
+</script>
+
+</body>
+</html>
